@@ -1,0 +1,3 @@
+rootProject.name = 'CustomActivityIndicator'
+
+include ':app'
