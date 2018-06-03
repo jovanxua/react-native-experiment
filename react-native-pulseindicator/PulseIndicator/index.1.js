@@ -15,10 +15,10 @@ class PulseIndicator extends Component {
     const maxOpacity = this.props.maxOpacity || 0.2;
     const minBorderRad = minSize * 2;
     const maxBorderRad = maxSize * 2;
-    const gapDuration = this.props.gapDuration || 600;
-    const maxOpacityDurationFactor = this.props.maxOpacityDurationFactor || 0.4;
-    const outerDuration = this.props.outerDuration || 2000;
-    const innerDuration = this.props.innerDuration || 2000;
+    const gapFactor = this.props.gapFactor || 0.5;
+    const openDuration = this.props.openDuration || 800;
+    const closeDuration = this.props.closeDuration || 1200;
+    const finalDuration = this.props.finalDuration || 800;
     const centerSize = this.props.centerSize || 15;
     const centerOpacity = this.props.centerOpacity || 1;
     const pulseColor = this.props.pulseColor || '#40b217';
@@ -31,10 +31,10 @@ class PulseIndicator extends Component {
       maxOpacity: maxOpacity,
       minBorderRad: minBorderRad,
       maxBorderRad: maxBorderRad,
-      gapDuration: gapDuration,
-      maxOpacityDurationFactor: maxOpacityDurationFactor,
-      outerDuration: outerDuration,
-      innerDuration: innerDuration,
+      gapFactor: gapFactor,
+      openDuration: openDuration,
+      closeDuration: closeDuration,
+      finalDuration: finalDuration,
       centerSize: centerSize,
       centerOpacity: centerOpacity,
       pulseColor: pulseColor,
@@ -52,6 +52,12 @@ class PulseIndicator extends Component {
     this.startAnimation();
   }
 
+  calcIntialVal = (min, max) => {
+    const { gapFactor } = this.state;
+    return min + ((max - min) * gapFactor);
+  }
+    
+
   startAnimation = () => {
     const {
       minSize,
@@ -60,53 +66,71 @@ class PulseIndicator extends Component {
       maxOpacity,
       minBorderRad,
       maxBorderRad,
-      gapDuration,
-      maxOpacityDurationFactor,
-      outerDuration,
-      innerDuration,
+      gapFactor,
+      openDuration,
+      closeDuration,
+      finalDuration,
       centerSize,
       centerOpacity,
     } = this.state;
-    Animated.loop(Animated.stagger(gapDuration, [
+    Animated.loop(Animated.stagger(500, [
       Animated.parallel([
+        Animated.timing(this.state.fadeAnimOuter, {
+          toValue: maxOpacity,
+          duration: openDuration,
+        }),
+        Animated.timing(this.state.sizeAnimOuter, {
+          toValue: this.calcIntialVal(minSize, maxSize),
+          duration: openDuration,
+        }),
+        Animated.timing(this.state.borderRadAnimOuter, {
+          toValue: this.calcIntialVal(minBorderRad, maxBorderRad),
+          duration: openDuration,
+        }),
+      ]),
+      Animated.parallel([
+        /* Animated.sequence([
+          Animated.parallel([
+            Animated.timing(this.state.fadeAnimInner, {
+              toValue: maxOpacity,
+              duration: openDuration,
+            }),
+            Animated.timing(this.state.sizeAnimInner, {
+              toValue: this.calcIntialVal(minSize, maxSize),
+              duration: openDuration,
+            }),
+            Animated.timing(this.state.borderRadAnimInner, {
+              toValue: this.calcIntialVal(minBorderRad, maxBorderRad),
+              duration: openDuration,
+            }),
+          ]),
+          Animated.parallel([
+            Animated.timing(this.state.sizeAnimInner, {
+              toValue: maxSize,
+              duration: finalDuration,
+            }),
+            Animated.timing(this.state.fadeAnimInner, {
+              toValue: minOpacity,
+              duration: finalDuration,
+            }),
+            Animated.timing(this.state.borderRadAnimInner, {
+              toValue: maxBorderRad,
+              duration: finalDuration,
+            }),
+          ]),
+        ]), */
         Animated.timing(this.state.sizeAnimOuter, {
           toValue: maxSize,
-          duration: outerDuration,
+          duration: closeDuration,
+        }),
+        Animated.timing(this.state.fadeAnimOuter, {
+          toValue: minOpacity,
+          duration: closeDuration,
         }),
         Animated.timing(this.state.borderRadAnimOuter, {
           toValue: maxBorderRad,
-          duration: outerDuration,
+          duration: closeDuration,
         }),
-        Animated.sequence([
-          Animated.timing(this.state.fadeAnimOuter, {
-            toValue: maxOpacity,
-            duration: outerDuration * maxOpacityDurationFactor,
-          }),
-          Animated.timing(this.state.fadeAnimOuter, {
-            toValue: minOpacity,
-            duration: outerDuration,
-          }),
-        ]),
-      ]),
-      Animated.parallel([
-        Animated.timing(this.state.sizeAnimInner, {
-          toValue: maxSize,
-          duration: innerDuration,
-        }),
-        Animated.timing(this.state.borderRadAnimInner, {
-          toValue: maxBorderRad,
-          duration: innerDuration,
-        }),
-        Animated.sequence([
-          Animated.timing(this.state.fadeAnimInner, {
-            toValue: maxOpacity,
-            duration: innerDuration * maxOpacityDurationFactor,
-          }),
-          Animated.timing(this.state.fadeAnimInner, {
-            toValue: minOpacity,
-            duration: innerDuration,
-          }),
-        ]),
       ]),
     ])).start();
   }
