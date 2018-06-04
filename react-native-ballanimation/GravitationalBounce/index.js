@@ -8,16 +8,18 @@ import {
 
 import styles from './styles';
 
-class Rolling extends Component {
+const speed = 1000;
+class GravitationalBounce extends Component {
   constructor(props) {
     super(props);
-
+    const { height, width } = Dimensions.get('window');
     this.state = {
-      xPos:  new Animated.Value(0),
+      xPos:  new Animated.Value((width/2)-25),
+      yPos: new Animated.Value(0),
       dSpinValue: new Animated.Value(0),
       dAngleFrom: new Animated.Value(360),
       dAngleTo: new Animated.Value(0),
-      imgSize: 60,
+      imgSize: 50,
     };
   }
 
@@ -29,6 +31,7 @@ class Rolling extends Component {
     const { height, width } = Dimensions.get('window');
     const { 
       xPos,
+      yPos,
       imgSize,
       dSpinValue,
       dAngleFrom,
@@ -43,25 +46,29 @@ class Rolling extends Component {
       Animated.parallel([
         Animated.timing(xPos, {
           toValue: width - imgSize,
-          duration: 5000,
+          duration: speed,
+        }),
+        Animated.timing(yPos, {
+          toValue: height * 0.3,
+          duration: speed,
         }),
         Animated.timing(dSpinValue, {
-          toValue: 1,
-          duration: 5000,
+          toValue: 0.5,
+          duration: speed,
         }),
       ]),
-      Animated.timing(dAngleTo, {
-        toValue: 0,
-        duration: 1,
-      }),
       Animated.parallel([
         Animated.timing(this.state.xPos, {
           toValue: 0,
-          duration: 5000,
+          duration: speed,
+        }),
+        Animated.timing(yPos, {
+          toValue: (height-100) - (imgSize*1.5),
+          duration: speed,
         }),
         Animated.timing(dSpinValue, {
           toValue: 0,
-          duration: 5000,
+          duration: speed,
         }),
       ]),
     ])).start()
@@ -70,6 +77,7 @@ class Rolling extends Component {
   render() {
     const { 
       xPos, 
+      yPos,
       imgSize, 
       dSpinValue,
       dAngleFrom,
@@ -91,7 +99,7 @@ class Rolling extends Component {
               width: imgSize,
               position: 'absolute',
               left: xPos,
-              bottom: 0
+              top: yPos
             }}
             source={require('../assets/images/soccerball.png')}
           />
@@ -108,4 +116,4 @@ class Rolling extends Component {
   }
 }
 
-export default Rolling;
+export default GravitationalBounce;
