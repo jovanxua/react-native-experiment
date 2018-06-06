@@ -10,12 +10,12 @@ import {
   View
 } from 'react-native';
 
-import GravitationalBounce from './GravitationalBounce';
+import MovableBall from './MovableBall';
 
 export default class App extends Component {
   render() {
     return (
-      <GravitationalBounce />
+      <MovableBall />
     );
   }
 }
